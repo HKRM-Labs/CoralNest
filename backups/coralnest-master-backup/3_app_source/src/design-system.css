@@ -1,0 +1,916 @@
+@import "@openclaw/carapace/tokens.css";
+@import "@openclaw/carapace/themes.css";
+@import "@openclaw/carapace/typography.css";
+@import "@openclaw/carapace/themes/product.css";
+@import "@openclaw/carapace/components.css";
+@import "@openclaw/carapace/compat/clawhub.css";
+
+/*
+ * CoralNest Canonical Design System — Deep Ocean Blue & Olive Green Tokens
+ */
+:root {
+  /* Page & Surface background layers */
+  --oc-bg-page: #070f1e;
+  --oc-bg-surface: #0f223d;
+  --oc-bg-elevated: #162e4d;
+  --oc-surface-card: #0f223d;
+  --oc-surface-interactive: #162e4d;
+  --oc-surface-interactive-hover: #1e3a5f;
+
+  /* Deep Ocean Blue Primary & Accent Colors */
+  --oc-accent-primary: #0284c7;
+  --oc-accent-primary-hover: #38bdf8;
+  --oc-accent-secondary: #6b8e23;
+  --oc-surface-accent-soft: rgba(2, 132, 199, 0.18);
+  --oc-surface-secondary-soft: rgba(85, 107, 47, 0.25);
+  --oc-border-accent: #0284c7;
+  --oc-text-on-accent: #ffffff;
+
+  /* Olive & Emerald Green Glow Accent */
+  --coral-olive-green: #6b8e23;
+  --coral-emerald-green: #10b981;
+  --coral-ocean-blue: #0284c7;
+
+  /* Coral Theme Color Variations - Deep Shades */
+  --coral-orange: #ff6b35;
+  --coral-orange-dark: #e55a2b;
+  --coral-red: #dc2626;
+  --coral-red-dark: #b91c1c;
+  --coral-purple: #663399;
+  --coral-purple-dark: #4a1a5c;
+  --coral-pink: #d63384;
+  --coral-pink-dark: #ab2968;
+  --coral-blue: #0284c7;
+  --coral-blue-dark: #0369a1;
+  --coral-olive: #6b8e23;
+  --coral-olive-dark: #556b2f;
+
+  /* Coral Background Gradient Combinations */
+  --coral-bg-orange: radial-gradient(
+    ellipse 60% 40% at 48% 0%,
+    color-mix(in srgb, var(--coral-orange) 15%, transparent) 0%,
+    transparent 65%
+  );
+  --coral-bg-red: radial-gradient(
+    ellipse 58% 38% at 52% 2%,
+    color-mix(in srgb, var(--coral-red) 14%, transparent) 0%,
+    transparent 68%
+  );
+  --coral-bg-purple: radial-gradient(
+    ellipse 58% 38% at 52% 2%,
+    color-mix(in srgb, var(--coral-purple) 12%, transparent) 0%,
+    transparent 68%
+  );
+  --coral-bg-pink: radial-gradient(
+    ellipse 56% 36% at 46% 4%,
+    color-mix(in srgb, var(--coral-pink) 14%, transparent) 0%,
+    transparent 62%
+  );
+  --coral-bg-blue: radial-gradient(
+    ellipse 54% 34% at 50% 0%,
+    color-mix(in srgb, var(--coral-blue) 16%, transparent) 0%,
+    transparent 66%
+  );
+  --coral-bg-olive: radial-gradient(
+    ellipse 52% 32% at 48% 2%,
+    color-mix(in srgb, var(--coral-olive) 13%, transparent) 0%,
+    transparent 64%
+  );
+
+  /* Coral Logo Background for Pages */
+  --coral-logo-bg-blue: url("/coral-logo-purple.png");
+  --coral-logo-bg-purple: url("/coral-logo-purple.png");
+  --coral-logo-bg-orange: url("/coral-logo-purple.png");
+  --coral-logo-bg-red: url("/coral-logo-purple.png");
+  --coral-logo-bg-pink: url("/coral-logo-purple.png");
+  --coral-logo-bg-olive: url("/coral-logo-purple.png");
+
+  /* Legacy aliases for old ClawHub CSS rules */
+  --accent-soft: var(--oc-surface-accent-soft);
+  --card-border: var(--oc-border-subtle);
+  --color-muted: var(--oc-text-muted);
+  --color-text: var(--oc-text-primary);
+  --danger: var(--oc-status-error-fg);
+  --font-sans: var(--oc-font-body);
+  --ink-faint: var(--oc-text-muted);
+  --official-border: color-mix(in srgb, var(--oc-status-info-fg) 28%, var(--oc-border-subtle));
+  --shadow: var(--oc-shadow-md);
+  --shadow-card: var(--oc-shadow-sm);
+  --shadow-dialog: var(--oc-shadow-lg);
+  --shadow-hover: var(--oc-shadow-md);
+  --shadow-lg: var(--oc-shadow-lg);
+  --status-pending-bg: var(--oc-surface-interactive);
+  --status-pending-fg: var(--oc-text-muted);
+  --surface-raised: var(--oc-surface-interactive-hover);
+  --surface-subtle: var(--oc-surface-interactive);
+  --transition-fast: var(--oc-duration-fast) var(--oc-ease-out);
+}
+
+/*
+ * Carapace ships a coral/orange accent and re-declares it under
+ * html[data-theme="dark"] / html[data-theme="light"], which outranks the
+ * plain :root block above. Re-pin the CoralNest ocean blue at matching
+ * specificity so the accent stays blue in every theme.
+ */
+:root,
+html[data-theme="dark"],
+html[data-theme="light"] {
+  --oc-accent-primary: #0284c7;
+  --oc-accent-primary-hover: #38bdf8;
+  --oc-accent-primary-deep: #0369a1;
+  --oc-border-accent: #0284c7;
+  --oc-surface-accent-soft: rgba(2, 132, 199, 0.18);
+}
+
+/*
+ * The --hv2-* aliases below are scoped to the landing page shell, but the
+ * shared catalog list row now renders on /flows, /search, and the browse
+ * pages too. Without a global fallback those colors resolve to nothing and
+ * every line of sub-text inherits near-white. Alias them at :root; the
+ * landing-page block still overrides them where it applies.
+ */
+:root {
+  --hv2-bg: var(--oc-bg-page);
+  --hv2-surface: var(--oc-surface-card);
+  --hv2-surface-hover: var(--oc-surface-interactive);
+  --hv2-border: var(--oc-border-subtle);
+  --hv2-border-hover: color-mix(in srgb, var(--oc-text-primary) 28%, var(--oc-border-subtle));
+  --hv2-border-strong: color-mix(in srgb, var(--oc-text-primary) 20%, var(--oc-border-subtle));
+  --hv2-text: var(--oc-text-primary);
+  --hv2-text-secondary: var(--oc-text-secondary);
+  --hv2-text-tertiary: var(--oc-text-muted);
+  --hv2-accent: var(--oc-accent-primary);
+  --hv2-radius-sm: var(--oc-radius-control);
+  --hv2-radius-md: var(--oc-radius-surface);
+  --hv2-radius-lg: var(--oc-radius-surface);
+  --hv2-ease-out: var(--oc-ease-out);
+  --hv2-duration-fast: var(--oc-duration-fast);
+}
+
+/*
+ * The landing page predates the shared package and still references --hv2-*
+ * variables throughout its layout CSS. Keep those aliases during migration,
+ * but make the canonical design system their only source of visual values.
+ */
+.home-v2-main.oc-app-surface {
+  --hv2-bg: var(--oc-bg-page);
+  --hv2-surface: var(--oc-surface-card);
+  --hv2-surface-hover: var(--oc-surface-interactive);
+  --hv2-border: var(--oc-border-subtle);
+  --hv2-border-hover: color-mix(in srgb, var(--oc-text-primary) 28%, var(--oc-border-subtle));
+  --hv2-border-strong: color-mix(in srgb, var(--oc-text-primary) 20%, var(--oc-border-subtle));
+  --hv2-text: var(--oc-text-primary);
+  --hv2-text-secondary: var(--oc-text-secondary);
+  --hv2-text-tertiary: var(--oc-text-muted);
+  --hv2-accent: var(--oc-accent-primary);
+  --hv2-accent-fill: var(--oc-surface-accent-soft);
+  --hv2-accent-fill-hover: color-mix(
+    in srgb,
+    var(--oc-surface-accent-soft) 78%,
+    var(--oc-accent-primary)
+  );
+  --hv2-accent-glow: color-mix(in srgb, var(--oc-accent-primary) 12%, transparent);
+  --hv2-accent-border: var(--oc-border-accent);
+  --hv2-accent-border-hover: color-mix(in srgb, var(--oc-accent-primary) 68%, transparent);
+  --hv2-green: var(--oc-accent-secondary);
+  --hv2-green-fill: var(--oc-surface-secondary-soft);
+  --hv2-green-border: color-mix(in srgb, var(--oc-accent-secondary) 38%, transparent);
+  --hv2-green-border-hover: color-mix(in srgb, var(--oc-accent-secondary) 62%, transparent);
+  --hv2-green-fill-hover: color-mix(
+    in srgb,
+    var(--oc-surface-secondary-soft) 72%,
+    var(--oc-accent-secondary)
+  );
+  --hv2-radius-sm: var(--oc-radius-control);
+  --hv2-radius-md: var(--oc-radius-surface);
+  --hv2-radius-lg: var(--oc-radius-surface);
+  --hv2-ease-out: var(--oc-ease-out);
+  --hv2-duration-fast: var(--oc-duration-fast);
+  --hv2-duration-ui: var(--oc-duration-ui);
+}
+
+.home-v2-main .oc-card {
+  border-color: var(--oc-component-border);
+  border-radius: var(--oc-radius-surface);
+  background: var(--oc-component-surface);
+  color: var(--oc-text-primary);
+  box-shadow: var(--oc-component-shadow);
+}
+
+.home-v2-main .oc-card-interactive:hover,
+.home-v2-main .oc-card-interactive:focus-visible {
+  border-color: var(--oc-component-border-hover);
+  background: var(--oc-component-surface-hover);
+  box-shadow: var(--oc-component-shadow-hover);
+}
+
+.home-v2-main .oc-action-primary {
+  border-color: var(--oc-accent-primary);
+  background: var(--oc-accent-primary);
+  color: var(--oc-text-on-accent);
+}
+
+.home-v2-main .oc-action-primary:hover,
+.home-v2-main .oc-action-primary:focus-visible {
+  border-color: var(--oc-accent-primary-hover);
+  background: var(--oc-accent-primary-hover);
+  color: var(--oc-text-on-accent);
+}
+
+.home-v2-main .oc-segmented {
+  /* Toolbar segments are fixed-size controls, not horizontal scrollers. */
+  overflow: visible;
+  border-color: var(--oc-border-subtle);
+  border-radius: var(--oc-radius-control);
+  background: var(--oc-surface-card);
+}
+
+.home-v2-main .oc-segmented-item {
+  /* Keep the shared 2rem minimum from overflowing the 30px toolbar track. */
+  min-height: var(--clawhub-segmented-seg-h);
+  border-radius: var(--oc-radius-inset);
+}
+
+.home-v2-main .oc-segmented-item[aria-selected="true"],
+.home-v2-main .oc-segmented-item[aria-pressed="true"],
+.home-v2-main .oc-segmented-item.is-active {
+  background: var(--oc-surface-interactive-hover);
+  color: var(--oc-text-primary);
+}
+
+/*
+ * The tiers and analogy sections were never picked up by the home page's
+ * section sizing, so they bled to the viewport edge while their siblings sat
+ * in a centred 1296px column. Match the siblings.
+ */
+.home-v2-main .home-v2-registry-tiers,
+.home-v2-main .home-v2-listing-stack,
+.home-v2-main .home-v2-analogy {
+  width: 100%;
+  max-width: 1296px;
+  margin-inline: auto;
+  padding-inline: 48px;
+}
+
+/*
+ * The home sections sit flush against each other; restore the vertical rhythm
+ * the old per-section wrappers provided.
+ */
+.home-v2-main .home-v2-registry-tiers,
+.home-v2-main .home-v2-listing-stack,
+.home-v2-main .home-v2-analogy {
+  padding-block: var(--oc-space-8, 2rem);
+}
+
+@media (max-width: 760px) {
+  .home-v2-main .home-v2-registry-tiers,
+  .home-v2-main .home-v2-listing-stack,
+  .home-v2-main .home-v2-analogy {
+    padding-inline: var(--oc-space-4);
+  }
+}
+
+/*
+ * Six full-width catalog sections stacked vertically. The previous two-column
+ * grid squeezed each list into ~600px, which collapsed the row grid and made
+ * names, tags, and timestamps overlap.
+ */
+.home-v2-listing-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+
+.home-v2-listing-section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--oc-space-5, 1.25rem);
+  margin-bottom: 14px;
+}
+
+.home-v2-listing-section-heading {
+  min-width: 0;
+}
+
+.home-v2-listing-section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--oc-text-primary);
+}
+
+.home-v2-listing-section-subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--oc-text-secondary);
+}
+
+@media (max-width: 760px) {
+  .home-v2-listing-stack {
+    gap: 40px;
+  }
+
+  .home-v2-listing-section-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--oc-space-2, 0.5rem);
+  }
+}
+
+.home-v2-analogy-headrow,
+.home-v2-analogy-row {
+  border-bottom: 1px solid var(--oc-border-subtle);
+}
+
+.home-v2-analogy-th {
+  color: var(--oc-text-secondary);
+}
+
+.home-v2-analogy-concept {
+  color: var(--oc-text-muted);
+}
+
+.home-v2-analogy-tier {
+  color: var(--oc-text-primary);
+}
+
+/*
+ * Registry tiers: an auto-fit grid so the five cards share the row evenly and
+ * wrap cleanly, instead of a fixed 5-column track that broke to 4-then-1.
+ */
+.registry-tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--oc-space-4);
+  min-width: 0;
+}
+
+.registry-tier-name {
+  color: var(--oc-text-primary);
+}
+
+.registry-tier-blurb {
+  color: var(--oc-text-secondary);
+}
+
+.registry-tier-count,
+.registry-tier-arrow {
+  color: var(--oc-text-muted);
+  transition: color var(--oc-duration-fast) var(--oc-ease-out);
+}
+
+.registry-tier-card:hover .registry-tier-arrow {
+  color: var(--oc-text-primary);
+}
+
+/*
+ * Grid-view cards. Same elements as before; colours now come from the design
+ * tokens so the card is legible in both themes.
+ */
+.catalog-card-name {
+  color: var(--oc-text-primary);
+}
+
+.catalog-card-by,
+.catalog-card-meta {
+  color: var(--oc-text-muted);
+}
+
+.catalog-card-summary {
+  color: var(--oc-text-secondary);
+}
+
+.catalog-card-tag {
+  color: var(--oc-text-muted);
+  opacity: 0.85;
+}
+
+.catalog-card-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--oc-border-subtle);
+  color: var(--oc-text-muted);
+}
+
+.catalog-download-btn {
+  background: var(--oc-surface-interactive);
+  color: var(--oc-text-secondary);
+}
+
+.catalog-download-btn:hover {
+  background: var(--oc-surface-interactive-hover);
+  color: var(--oc-text-primary);
+}
+
+/*
+ * Catalog rows keep their original Name / Category / Popularity columns. The
+ * shared listing row reserves most of its width for copy, which starves the
+ * trailing columns, so catalog rows pin them to fixed widths instead.
+ */
+.home-v2-listing-row.is-catalog,
+.home-v2-listing-head.is-catalog {
+  grid-template-columns: minmax(0, 1fr) 160px 190px;
+}
+
+@media (max-width: 900px) {
+  .home-v2-listing-row.is-catalog,
+  .home-v2-listing-head.is-catalog {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .home-v2-listing-row.is-catalog .home-v2-listing-row-category,
+  .home-v2-listing-head.is-catalog .home-v2-listing-head-mid {
+    display: none;
+  }
+
+  .home-v2-listing-row.is-catalog .home-v2-listing-row-stats,
+  .home-v2-listing-head.is-catalog .home-v2-listing-head-stat {
+    grid-column: 2;
+  }
+}
+
+/* Popularity column stacks "Updated …" over the counts, right-aligned. */
+.home-v2-listing-row-stats.is-catalog {
+  grid-column: 3;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--oc-text-muted);
+}
+
+.home-v2-listing-row-updated {
+  white-space: nowrap;
+}
+
+.home-v2-listing-row-counts {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.home-v2-listing-row-download {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  padding: 4px;
+  border-radius: var(--oc-radius-inset);
+  background: var(--oc-surface-interactive);
+  color: var(--oc-text-muted);
+  transition: background var(--oc-duration-fast) var(--oc-ease-out);
+}
+
+.home-v2-listing-row-download:hover {
+  background: var(--oc-surface-interactive-hover);
+  color: var(--oc-text-primary);
+}
+
+.home-v2-listing-row-category {
+  grid-column: 2;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--oc-text-secondary);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-v2-listing-head-mid {
+  grid-column: 2;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--oc-text-muted);
+}
+
+.home-v2-listing-row-tag {
+  flex-shrink: 0;
+  color: var(--oc-text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/*
+ * Unified catalog toolbar: a left-aligned segmented family switcher, a hairline
+ * divider, then the type tabs, with the browse link pushed to the far right.
+ */
+.home-v2-main .home-v2-unified-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-space-4);
+  flex-wrap: wrap;
+}
+
+.home-v2-main .home-v2-unified-divider {
+  width: 1px;
+  align-self: stretch;
+  min-height: 1.25rem;
+  background: var(--oc-border-subtle);
+}
+
+.home-v2-main .home-v2-unified-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--oc-space-4);
+  flex-wrap: wrap;
+}
+
+.home-v2-main .home-v2-unified-tab {
+  padding-bottom: var(--oc-space-2);
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--oc-text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color var(--oc-duration-fast) var(--oc-ease-out);
+}
+
+.home-v2-main .home-v2-unified-tab:hover {
+  color: var(--oc-text-secondary);
+}
+
+.home-v2-main .home-v2-unified-tab[aria-selected="true"] {
+  border-bottom-color: var(--oc-text-primary);
+  color: var(--oc-text-primary);
+  font-weight: 600;
+}
+
+.home-v2-main .home-v2-unified-browse {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--oc-space-2);
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.home-v2-main .home-v2-unified-subtitle {
+  margin-top: var(--oc-space-3);
+  margin-bottom: var(--oc-space-4);
+  color: var(--oc-text-muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .home-v2-main .home-v2-unified-divider {
+    display: none;
+  }
+
+  .home-v2-main .home-v2-unified-browse {
+    margin-left: 0;
+  }
+
+  .home-v2-main .home-v2-popular-publishers-header.oc-section-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--oc-space-3);
+  }
+}
+
+/*
+ * The legacy light selectors in styles.css are more specific than the
+ * compatibility aliases' :root rule. Rebind those aliases at the same
+ * specificity while keeping every value owned by the shared package.
+ */
+[data-theme-family="claw"][data-theme-resolved="light"] {
+  --bg: var(--oc-bg-page);
+  --bg-soft: var(--oc-bg-surface);
+  --surface: var(--oc-bg-elevated);
+  --surface-muted: var(--oc-bg-surface);
+  --nav-bg: var(--oc-bg-page);
+  --ink: var(--oc-text-primary);
+  --ink-soft: var(--oc-text-secondary);
+  --accent: var(--oc-accent-primary);
+  --accent-fg: var(--oc-text-on-accent);
+  --accent-deep: var(--oc-accent-primary-hover);
+  --accent-subtle: var(--oc-surface-accent-soft);
+  --line: var(--oc-border-subtle);
+  --border-ui: var(--oc-border-subtle);
+  --border-ui-hover: color-mix(in srgb, var(--oc-text-primary) 20%, transparent);
+  --border-ui-active: var(--oc-border-accent);
+  --status-success-bg: var(--oc-status-success-bg);
+  --status-success-fg: var(--oc-status-success-fg);
+  --status-warning-bg: var(--oc-status-warning-bg);
+  --status-warning-fg: var(--oc-status-warning-fg);
+  --status-error-bg: var(--oc-status-error-bg);
+  --status-error-fg: var(--oc-status-error-fg);
+  --official-bg: var(--oc-status-info-bg);
+  --official-fg: var(--oc-status-info-fg);
+  --input-border: var(--oc-input-border);
+  --input-bg: var(--oc-input-bg);
+  --input-placeholder: var(--oc-input-placeholder);
+  --input-focus-border: var(--oc-input-focus-border);
+  --input-focus-ring: var(--oc-input-focus-ring);
+  --label-fg: var(--oc-text-secondary);
+  --hover-bg: var(--oc-surface-interactive);
+  --active-bg: var(--oc-surface-accent-soft);
+  --overlay-bg: var(--oc-surface-overlay);
+  --diff-added: var(--oc-diff-added);
+  --diff-added-strong: var(--oc-diff-added-strong);
+  --diff-removed: var(--oc-diff-removed);
+  --diff-removed-strong: var(--oc-diff-removed-strong);
+}
+
+@media (prefers-color-scheme: light) {
+  [data-theme-family="claw"][data-theme-mode="system"] {
+    --bg: var(--oc-bg-page);
+    --bg-soft: var(--oc-bg-surface);
+    --surface: var(--oc-bg-elevated);
+    --surface-muted: var(--oc-bg-surface);
+    --nav-bg: var(--oc-bg-page);
+    --ink: var(--oc-text-primary);
+    --ink-soft: var(--oc-text-secondary);
+    --accent: var(--oc-accent-primary);
+    --accent-fg: var(--oc-text-on-accent);
+    --accent-deep: var(--oc-accent-primary-hover);
+    --accent-subtle: var(--oc-surface-accent-soft);
+    --line: var(--oc-border-subtle);
+    --border-ui: var(--oc-border-subtle);
+    --border-ui-hover: color-mix(in srgb, var(--oc-text-primary) 20%, transparent);
+    --border-ui-active: var(--oc-border-accent);
+    --status-success-bg: var(--oc-status-success-bg);
+    --status-success-fg: var(--oc-status-success-fg);
+    --status-warning-bg: var(--oc-status-warning-bg);
+    --status-warning-fg: var(--oc-status-warning-fg);
+    --status-error-bg: var(--oc-status-error-bg);
+    --status-error-fg: var(--oc-status-error-fg);
+    --official-bg: var(--oc-status-info-bg);
+    --official-fg: var(--oc-status-info-fg);
+    --input-border: var(--oc-input-border);
+    --input-bg: var(--oc-input-bg);
+    --input-placeholder: var(--oc-input-placeholder);
+    --input-focus-border: var(--oc-input-focus-border);
+    --input-focus-ring: var(--oc-input-focus-ring);
+    --label-fg: var(--oc-text-secondary);
+    --hover-bg: var(--oc-surface-interactive);
+    --active-bg: var(--oc-surface-accent-soft);
+    --overlay-bg: var(--oc-surface-overlay);
+    --diff-added: var(--oc-diff-added);
+    --diff-added-strong: var(--oc-diff-added-strong);
+    --diff-removed: var(--oc-diff-removed);
+    --diff-removed-strong: var(--oc-diff-removed-strong);
+  }
+}
+
+/*
+ * Coral Page Background System - Full Height Logo Backgrounds
+ */
+.coral-page-wrapper {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.coral-page-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  background: var(--oc-bg-page);
+  overflow: hidden;
+}
+
+.coral-logo-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.coral-logo-large {
+  width: 400px;
+  height: 400px;
+  object-fit: contain;
+  filter: blur(1px);
+}
+
+.coral-logo-text {
+  margin-top: 2rem;
+  font-size: 3.5rem;
+  font-weight: 700;
+  font-family: var(--oc-font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* Page-specific coral backgrounds */
+[data-coral-page="home"] .coral-page-bg {
+  background: var(--oc-bg-page);
+  background-image: var(--coral-bg-blue);
+}
+
+[data-coral-page="home"] .coral-logo-text {
+  background: linear-gradient(135deg, var(--coral-blue), var(--coral-blue-dark));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+[data-coral-page="skills"] .coral-page-bg {
+  background: var(--oc-bg-page);
+  background-image: var(--coral-bg-blue);
+}
+
+[data-coral-page="skills"] .coral-logo-text {
+  background: linear-gradient(135deg, var(--coral-blue), var(--coral-blue-dark));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+[data-coral-page="plugins"] .coral-page-bg {
+  background: var(--oc-bg-page);
+  background-image: var(--coral-bg-purple);
+}
+
+[data-coral-page="plugins"] .coral-logo-text {
+  background: linear-gradient(135deg, var(--coral-purple), var(--coral-purple-dark));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+[data-coral-page="connectors"] .coral-page-bg {
+  background: var(--oc-bg-page);
+  background-image: var(--coral-bg-orange);
+}
+
+[data-coral-page="connectors"] .coral-logo-text {
+  background: linear-gradient(135deg, var(--coral-orange), var(--coral-orange-dark));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+[data-coral-page="creators"] .coral-page-bg {
+  background: var(--oc-bg-page);
+  background-image: var(--coral-bg-pink);
+}
+
+[data-coral-page="creators"] .coral-logo-text {
+  background: linear-gradient(135deg, var(--coral-pink), var(--coral-pink-dark));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+[data-coral-page="mcp"] .coral-page-bg {
+  background: var(--oc-bg-page);
+  background-image: var(--coral-bg-olive);
+}
+
+[data-coral-page="mcp"] .coral-logo-text {
+  background: linear-gradient(135deg, var(--coral-olive), var(--coral-olive-dark));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .coral-logo-large {
+    width: 300px;
+    height: 300px;
+  }
+
+  .coral-logo-text {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .coral-logo-large {
+    width: 240px;
+    height: 240px;
+  }
+
+  .coral-logo-text {
+    font-size: 2rem;
+  }
+}
+
+/* Ensure content appears above the background */
+.coral-page-wrapper > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* === REAL CORAL TOP HEADER BACKGROUND BANNER === */
+.coral-header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 420px;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.coral-header-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/coral-bg.jpg") center top / cover no-repeat;
+  opacity: 0.38;
+  filter: brightness(0.95) contrast(1.1) saturate(1.2);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%);
+}
+
+/* === CENTERED PAGE LOGO & TITLE BANNER (HERO SCALE - MASSIVE LOGO & TITLE) === */
+.coral-section-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 56px;
+  padding-bottom: 40px;
+}
+
+.coral-section-header-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.coral-section-logo {
+  width: clamp(110px, 14vw, 160px);
+  height: clamp(110px, 14vw, 160px);
+  object-fit: contain;
+  filter: drop-shadow(0 0 32px rgba(255, 255, 255, 0.3)) drop-shadow(0 8px 24px rgba(0, 0, 0, 0.7));
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.coral-section-logo:hover {
+  transform: scale(1.08);
+}
+
+.coral-section-title {
+  font-family: var(--oc-font-display, "Bricolage Grotesque", sans-serif);
+  font-size: clamp(56px, 7.5vw, 92px);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1;
+  text-shadow:
+    0 6px 32px rgba(0, 0, 0, 0.85),
+    0 0 50px rgba(255, 255, 255, 0.2);
+}
+
+/*
+ * Footer breathing room: the nav columns ran straight into the bottom bar's
+ * divider, and the last column link sat flush against it.
+ */
+footer.site-footer-v2 .site-footer-inner {
+  padding: 80px var(--space-6) 64px;
+}
+
+footer.site-footer-v2 .footer-v2-main {
+  padding-bottom: 12px;
+}
+
+footer.site-footer-v2 .footer-v2-bottom {
+  margin-top: 40px;
+  padding-top: 32px;
+}
+
+@media (max-width: 760px) {
+  footer.site-footer-v2 .site-footer-inner {
+    padding: 56px var(--space-5) 48px;
+  }
+
+  footer.site-footer-v2 .footer-v2-bottom {
+    margin-top: 28px;
+    padding-top: 24px;
+  }
+}
+
+/* Hide duplicate sub-header title when main section header is shown */
+.coral-page-wrapper:has(.coral-section-header) .browse-page-header {
+  display: none;
+}

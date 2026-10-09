@@ -1,0 +1,826 @@
+import { Link, useLocation, useNavigate } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  Cable,
+  Command,
+  ExternalLink,
+  Loader2,
+  Menu,
+  Monitor,
+  Moon,
+  MoreHorizontal,
+  Network,
+  Package,
+  Puzzle,
+  Repeat2,
+  Search,
+  Server,
+  Sun,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { rowString, rowStringArray } from "../lib/assetsClient";
+import type { AssetRow, AssetType } from "../lib/assetTypes";
+import { catalogDetailHref } from "../lib/catalogPaths";
+import { PRIMARY_NAV_ITEMS, SECONDARY_NAV_ITEMS } from "../lib/nav-items";
+import { SITE_NAME } from "../lib/site";
+import { applyTheme, useThemeMode } from "../lib/theme";
+import { useAssetTypeahead } from "../lib/useAssetTypeahead";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "./ui/sheet";
+
+const THEME_MODE_ITEMS = [
+  { mode: "system", label: "System theme", Icon: Monitor },
+  { mode: "light", label: "Light theme", Icon: Sun },
+  { mode: "dark", label: "Dark theme", Icon: Moon },
+] as const;
+const CLAWHUB_BRAND_MARK_SRC = "/coral-logo-purple.png";
+
+const TYPEAHEAD_ICONS = {
+  skills: Package,
+  loops: Repeat2,
+  graphs: Network,
+  mcp_servers: Server,
+  connectors: Cable,
+  plugins: Puzzle,
+} as const satisfies Record<AssetType, typeof Package>;
+
+const TYPEAHEAD_HEADINGS: Record<AssetType, string> = {
+  skills: "Skills",
+  loops: "Loops",
+  graphs: "Graphs",
+  mcp_servers: "MCP servers",
+  connectors: "Connectors",
+  plugins: "Plugins",
+};
+
+function useAppleSearchShortcut() {
+  const [isApple, setIsApple] = useState(true);
+
+  useEffect(() => {
+    setIsApple(/Mac|iPhone|iPad|iPod/.test(navigator.userAgent));
+  }, []);
+
+  return isApple;
+}
+
+function NavSearchShortcutKbd({ isApple }: { isApple: boolean }) {
+  return (
+    <kbd className="navbar-search-kbd" aria-hidden="true">
+      {isApple ? (
+        <>
+          <Command className="navbar-search-kbd-icon" aria-hidden="true" />
+          <span className="navbar-search-kbd-key">K</span>
+        </>
+      ) : (
+        <>
+          <span className="navbar-search-kbd-key">Ctrl</span>
+          <span className="navbar-search-kbd-plus">+</span>
+          <span className="navbar-search-kbd-key">K</span>
+        </>
+      )}
+    </kbd>
+  );
+}
+
+type TypeaheadItem =
+  | {
+      kind: "asset";
+      key: string;
+      type: AssetType;
+      item: AssetRow;
+    }
+  | {
+      kind: "footer";
+      key: string;
+      section: AssetType;
+      label: string;
+    };
+
+export default function Header() {
+  const { theme, mode, setMode } = useThemeMode();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [navSearchQuery, setNavSearchQuery] = useState("");
+  const [typeaheadOpen, setTypeaheadOpen] = useState(false);
+  const [typeaheadActiveIndex, setTypeaheadActiveIndex] = useState(0);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  const searchWrapRef = useRef<HTMLDivElement | null>(null);
+  const mobileSearchWrapRef = useRef<HTMLDivElement | null>(null);
+  const mobileSearchTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const navSearchInputRef = useRef<HTMLInputElement | null>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
+  const isAppleSearchShortcut = useAppleSearchShortcut();
+  const trimmedNavSearchQuery = navSearchQuery.trim();
+  const hasNavSearchQuery = trimmedNavSearchQuery.length > 0;
+  const showTypeahead = typeaheadOpen;
+  const showMobileTypeahead = showTypeahead && hasNavSearchQuery;
+  const {
+    groups: typeaheadGroups,
+    hasResults: typeaheadHasResults,
+    isSearching: typeaheadSearching,
+  } = useAssetTypeahead(navSearchQuery, {
+    debounceMs: 180,
+    enabled: typeaheadOpen && hasNavSearchQuery,
+    limit: 4,
+  });
+  const typeaheadItems = useMemo<TypeaheadItem[]>(() => {
+    if (!hasNavSearchQuery) return [];
+    const items: TypeaheadItem[] = [];
+    for (const group of typeaheadGroups) {
+      for (const item of group.items) {
+        const slug = rowString(item, "slug") ?? "";
+        items.push({ kind: "asset", key: `asset-${group.type}-${slug}`, type: group.type, item });
+      }
+      items.push({
+        kind: "footer",
+        key: `footer-${group.type}`,
+        section: group.type,
+        label: `See ${TYPEAHEAD_HEADINGS[group.type].toLowerCase()} results for "${trimmedNavSearchQuery}"`,
+      });
+    }
+    return items;
+  }, [hasNavSearchQuery, trimmedNavSearchQuery, typeaheadGroups]);
+  const activeTypeaheadItem = showTypeahead ? typeaheadItems[typeaheadActiveIndex] : undefined;
+  const activeTypeaheadId = activeTypeaheadItem
+    ? getTypeaheadOptionId(activeTypeaheadItem)
+    : undefined;
+
+  useEffect(() => {
+    setTypeaheadActiveIndex(0);
+  }, [trimmedNavSearchQuery]);
+
+  useEffect(() => {
+    setTypeaheadActiveIndex((index) => Math.min(index, Math.max(typeaheadItems.length - 1, 0)));
+  }, [typeaheadItems.length]);
+
+  useEffect(() => {
+    if (!typeaheadOpen && !mobileSearchOpen) return () => {};
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (searchWrapRef.current?.contains(target)) return;
+      if (mobileSearchWrapRef.current?.contains(target)) return;
+      if (mobileSearchTriggerRef.current?.contains(target)) return;
+      setTypeaheadOpen(false);
+      setMobileSearchOpen(false);
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [typeaheadOpen, mobileSearchOpen]);
+
+  useEffect(() => {
+    const threshold = 8;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setHeaderScrolled(window.scrollY > threshold);
+    };
+    const onScroll = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "k") return;
+      if (event.defaultPrevented) return;
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT")
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      navSearchInputRef.current?.focus();
+      setTypeaheadOpen(true);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  const setThemeMode = (next: "system" | "light" | "dark") => {
+    applyTheme(next, theme);
+    setMode(next);
+  };
+
+  const handleNavSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = navSearchQuery.trim();
+    if (!q) return;
+    void navigate({
+      to: "/search",
+      search: { q, type: undefined },
+    });
+    setNavSearchQuery("");
+    setTypeaheadOpen(false);
+    setMobileSearchOpen(false);
+  };
+
+  const navigateToTypeaheadItem = (item: TypeaheadItem) => {
+    if (item.kind === "asset") {
+      const slug = rowString(item.item, "slug") ?? "";
+      if (!slug) return;
+      void navigate({ to: catalogDetailHref(item.type, slug) });
+    } else {
+      void navigate({
+        to: "/search",
+        search: { q: trimmedNavSearchQuery, type: item.section },
+      });
+    }
+    setNavSearchQuery("");
+    setTypeaheadOpen(false);
+    setMobileSearchOpen(false);
+  };
+
+  const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Escape") {
+      setTypeaheadOpen(false);
+      setMobileSearchOpen(false);
+      return;
+    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp" && event.key !== "Enter") {
+      return;
+    }
+    if (!showTypeahead) {
+      if (event.key === "ArrowDown" && trimmedNavSearchQuery) {
+        setTypeaheadOpen(true);
+        event.preventDefault();
+      }
+      return;
+    }
+    if (typeaheadItems.length === 0) return;
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setTypeaheadActiveIndex((index) => (index + 1) % typeaheadItems.length);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setTypeaheadActiveIndex(
+        (index) => (index - 1 + typeaheadItems.length) % typeaheadItems.length,
+      );
+    } else if (event.key === "Enter") {
+      const activeItem = typeaheadItems[typeaheadActiveIndex];
+      if (!activeItem) return;
+      event.preventDefault();
+      navigateToTypeaheadItem(activeItem);
+    }
+  };
+
+  return (
+    <header className={`navbar navbar-calm${headerScrolled ? " navbar-calm-scrolled" : ""}`}>
+      <div className="navbar-inner">
+        <div className="navbar-top">
+          <div className="navbar-calm-start">
+            <div className="nav-mobile">
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <button
+                  className="nav-mobile-trigger"
+                  type="button"
+                  aria-label="Open menu"
+                  onClick={() => setMobileMenuOpen(true)}
+                >
+                  <Menu className="h-4 w-4" aria-hidden="true" />
+                </button>
+                <SheetContent side="left" className="mobile-nav-sheet">
+                  <SheetHeader className="pr-10">
+                    <SheetTitle>
+                      <span className="mobile-nav-brand">
+                        <img
+                          src={CLAWHUB_BRAND_MARK_SRC}
+                          alt=""
+                          aria-hidden="true"
+                          className="mobile-nav-brand-mark-image"
+                        />
+                        <span className="mobile-nav-brand-name">{SITE_NAME}</span>
+                      </span>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="mobile-nav-section">
+                    <SheetClose asChild>
+                      <Link to="/" className="mobile-nav-link">
+                        Home
+                      </Link>
+                    </SheetClose>
+                    {PRIMARY_NAV_ITEMS.map((item) => (
+                      <SheetClose key={item.to + item.label} asChild>
+                        <Link
+                          to={item.to}
+                          search={(item.search ?? {}) as never}
+                          className="mobile-nav-link"
+                        >
+                          {item.label}
+                        </Link>
+                      </SheetClose>
+                    ))}
+                    {SECONDARY_NAV_ITEMS.map((item) => (
+                      <SheetClose key={(item.href ?? item.to ?? "") + item.label} asChild>
+                        {item.href ? (
+                          <a
+                            href={item.href}
+                            className="mobile-nav-link"
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <span>{item.label}</span>
+                            <ExternalLink
+                              size={16}
+                              className="mobile-nav-link-external"
+                              aria-hidden="true"
+                            />
+                          </a>
+                        ) : (
+                          <Link
+                            to={item.to}
+                            search={(item.search ?? {}) as never}
+                            className="mobile-nav-link"
+                          >
+                            {item.label}
+                          </Link>
+                        )}
+                      </SheetClose>
+                    ))}
+                  </div>
+                  <div className="mobile-nav-section mobile-nav-appearance-section">
+                    <span className="mobile-nav-section-title">Appearance</span>
+                    <NavbarThemeSwitcher mode={mode} onSetMode={setThemeMode} />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+
+            <Link
+              to="/"
+              search={{ q: undefined, highlighted: undefined, search: undefined }}
+              className="brand"
+            >
+              <span className="brand-mark">
+                <img
+                  src={CLAWHUB_BRAND_MARK_SRC}
+                  alt=""
+                  aria-hidden="true"
+                  className="brand-mark-image"
+                />
+              </span>
+              <span className="brand-name brand-name-responsive">{SITE_NAME}</span>
+            </Link>
+
+            <nav className="navbar-calm-rail" aria-label="Primary navigation">
+              {PRIMARY_NAV_ITEMS.map((item) => (
+                <HeaderNavTab
+                  key={item.to + item.label}
+                  className="navbar-calm-rail-link"
+                  item={item}
+                  pathname={location.pathname}
+                />
+              ))}
+              {SECONDARY_NAV_ITEMS.map((item) => (
+                <HeaderNavTab
+                  key={(item.href ?? item.to ?? "") + item.label}
+                  className="navbar-calm-rail-link navbar-calm-rail-link-secondary"
+                  item={item}
+                  pathname={location.pathname}
+                />
+              ))}
+              {SECONDARY_NAV_ITEMS.length > 0 ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="navbar-calm-more-trigger"
+                      type="button"
+                      aria-label="More navigation"
+                    >
+                      <MoreHorizontal size={16} aria-hidden="true" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="navbar-calm-more-menu">
+                    {SECONDARY_NAV_ITEMS.map((item) => (
+                      <DropdownMenuItem key={(item.href ?? item.to ?? "") + item.label} asChild>
+                        <HeaderNavTab
+                          className="navbar-calm-more-link"
+                          item={item}
+                          pathname={location.pathname}
+                        />
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : null}
+            </nav>
+          </div>
+
+          <div className="navbar-calm-center">
+            <div className="navbar-search-wrap" ref={searchWrapRef}>
+              <form
+                className="navbar-search"
+                onSubmit={handleNavSearch}
+                role="search"
+                aria-label="Site search"
+              >
+                <Search size={16} className="navbar-search-icon" aria-hidden="true" />
+                <input
+                  ref={navSearchInputRef}
+                  className="navbar-search-input"
+                  type="search"
+                  role="combobox"
+                  placeholder="Search skills, loops, graphs, MCP, connectors, and plugins"
+                  value={navSearchQuery}
+                  onChange={(e) => {
+                    setNavSearchQuery(e.target.value);
+                    setTypeaheadOpen(true);
+                  }}
+                  onFocus={() => setTypeaheadOpen(true)}
+                  onKeyDown={handleSearchKeyDown}
+                  aria-label="Search"
+                  aria-autocomplete="list"
+                  aria-expanded={showTypeahead}
+                  aria-controls="navbar-search-typeahead"
+                  aria-activedescendant={activeTypeaheadId}
+                  autoComplete="off"
+                />
+                <NavSearchShortcutKbd isApple={isAppleSearchShortcut} />
+              </form>
+              {showTypeahead && !mobileSearchOpen ? (
+                <SearchTypeahead
+                  activeIndex={typeaheadActiveIndex}
+                  hasResults={typeaheadHasResults}
+                  items={typeaheadItems}
+                  loading={typeaheadSearching}
+                  onHoverItem={setTypeaheadActiveIndex}
+                  onSelectItem={navigateToTypeaheadItem}
+                  query={trimmedNavSearchQuery}
+                />
+              ) : null}
+            </div>
+          </div>
+
+          <div className="navbar-calm-actions nav-actions">
+            <button
+              ref={mobileSearchTriggerRef}
+              className="navbar-search-mobile-trigger"
+              type="button"
+              aria-label={mobileSearchOpen ? "Close search" : "Search"}
+              aria-expanded={mobileSearchOpen}
+              onClick={() => {
+                const nextOpen = !mobileSearchOpen;
+                setMobileSearchOpen(nextOpen);
+                setTypeaheadOpen(nextOpen && hasNavSearchQuery);
+              }}
+            >
+              {mobileSearchOpen ? (
+                <X size={18} aria-hidden="true" />
+              ) : (
+                <Search size={18} aria-hidden="true" />
+              )}
+            </button>
+            <NavbarThemeSwitcher mode={mode} onSetMode={setThemeMode} />
+          </div>
+        </div>
+
+        {mobileSearchOpen ? (
+          <button
+            className="navbar-search-mobile-overlay"
+            type="button"
+            aria-label="Close search"
+            tabIndex={-1}
+            onPointerDown={() => {
+              setTypeaheadOpen(false);
+              setMobileSearchOpen(false);
+            }}
+          />
+        ) : null}
+
+        {/* Mobile search bar (expandable) */}
+        {mobileSearchOpen ? (
+          <div className="navbar-search-mobile-wrap" ref={mobileSearchWrapRef}>
+            <form className="navbar-search-mobile" onSubmit={handleNavSearch}>
+              <Search size={16} className="navbar-search-icon" aria-hidden="true" />
+              <input
+                ref={mobileSearchInputRef}
+                className="navbar-search-input"
+                type="search"
+                role="combobox"
+                placeholder="Search skills, loops, graphs, MCP, connectors, and plugins"
+                value={navSearchQuery}
+                onChange={(e) => {
+                  setNavSearchQuery(e.target.value);
+                  setTypeaheadOpen(true);
+                }}
+                onFocus={() => setTypeaheadOpen(true)}
+                onKeyDown={handleSearchKeyDown}
+                aria-label="Search"
+                aria-autocomplete="list"
+                aria-expanded={showMobileTypeahead}
+                aria-controls="navbar-search-typeahead"
+                aria-activedescendant={activeTypeaheadId}
+                autoComplete="off"
+                autoFocus
+              />
+              {hasNavSearchQuery ? (
+                <button
+                  className="navbar-search-mobile-clear"
+                  type="button"
+                  aria-label="Clear search"
+                  onClick={() => {
+                    setNavSearchQuery("");
+                    setTypeaheadOpen(false);
+                    mobileSearchInputRef.current?.focus();
+                  }}
+                >
+                  Clear
+                </button>
+              ) : null}
+            </form>
+            {showMobileTypeahead ? (
+              <SearchTypeahead
+                activeIndex={typeaheadActiveIndex}
+                hasResults={typeaheadHasResults}
+                items={typeaheadItems}
+                loading={typeaheadSearching}
+                onHoverItem={setTypeaheadActiveIndex}
+                onSelectItem={navigateToTypeaheadItem}
+                query={trimmedNavSearchQuery}
+              />
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+    </header>
+  );
+}
+
+type HeaderNavItem = (typeof PRIMARY_NAV_ITEMS)[number];
+
+function HeaderNavTab({
+  className,
+  item,
+  pathname,
+}: {
+  className: string;
+  item: HeaderNavItem;
+  pathname: string;
+}) {
+  const isActiveByPrefix = item.activePathPrefixes?.some((prefix) => pathname.startsWith(prefix));
+
+  if (item.href) {
+    return (
+      <a
+        href={item.href}
+        className={className}
+        data-status={isActiveByPrefix ? "active" : undefined}
+      >
+        {item.label}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      to={item.to}
+      className={className}
+      search={(item.search ?? {}) as never}
+      data-status={isActiveByPrefix ? "active" : undefined}
+    >
+      {item.label}
+    </Link>
+  );
+}
+
+function SearchTypeahead({
+  activeIndex,
+  hasResults,
+  items,
+  loading,
+  onHoverItem,
+  onSelectItem,
+  query,
+}: {
+  activeIndex: number;
+  hasResults: boolean;
+  items: TypeaheadItem[];
+  loading: boolean;
+  onHoverItem: (index: number) => void;
+  onSelectItem: (item: TypeaheadItem) => void;
+  query: string;
+}) {
+  const hasQuery = query.length > 0;
+  const hasMatches = hasQuery && hasResults;
+
+  return (
+    <div className="navbar-search-typeahead" id="navbar-search-typeahead">
+      <div className="navbar-search-typeahead-panel">
+        {!hasQuery ? (
+          <div className="navbar-search-typeahead-status is-empty">
+            <span className="navbar-search-typeahead-status-icon" aria-hidden="true">
+              <Search size={17} />
+            </span>
+            <span>Start typing to search skills, loops, graphs, MCP, connectors, and plugins</span>
+          </div>
+        ) : null}
+        {hasQuery && loading && !hasMatches ? (
+          <div className="navbar-search-typeahead-status is-loading">
+            <span className="navbar-search-typeahead-status-icon" aria-hidden="true">
+              <Loader2 className="navbar-search-typeahead-status-spinner" size={17} />
+            </span>
+            <span>Searching…</span>
+          </div>
+        ) : null}
+        {hasQuery && !loading && !hasMatches ? (
+          <div className="navbar-search-typeahead-status">No results found for "{query}"</div>
+        ) : null}
+        {hasMatches ? (
+          <div
+            className="navbar-search-typeahead-results"
+            role="listbox"
+            aria-label="Search suggestions"
+          >
+            {items.map((item, index) => {
+              if (item.kind === "footer") {
+                return (
+                  <TypeaheadRow
+                    key={item.key}
+                    active={activeIndex === index}
+                    item={item}
+                    index={index}
+                    onHoverItem={onHoverItem}
+                    onSelectItem={onSelectItem}
+                  />
+                );
+              }
+              const previousIsFooter = index > 0 && items[index - 1]?.kind === "footer";
+              return (
+                <FragmentRowGroup
+                  key={item.key}
+                  active={activeIndex === index}
+                  heading={
+                    index === 0 || previousIsFooter ? TYPEAHEAD_HEADINGS[item.type] : undefined
+                  }
+                  item={item}
+                  index={index}
+                  onHoverItem={onHoverItem}
+                  onSelectItem={onSelectItem}
+                />
+              );
+            })}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function FragmentRowGroup({
+  active,
+  heading,
+  index,
+  item,
+  onHoverItem,
+  onSelectItem,
+}: {
+  active: boolean;
+  heading?: string;
+  index: number;
+  item: Extract<TypeaheadItem, { kind: "asset" }>;
+  onHoverItem: (index: number) => void;
+  onSelectItem: (item: TypeaheadItem) => void;
+}) {
+  return (
+    <div className="navbar-search-typeahead-section" role="group" aria-label={heading}>
+      {heading ? <div className="navbar-search-typeahead-heading">{heading}</div> : null}
+      <TypeaheadRow
+        active={active}
+        item={item}
+        index={index}
+        onHoverItem={onHoverItem}
+        onSelectItem={onSelectItem}
+      />
+    </div>
+  );
+}
+
+function TypeaheadRow({
+  active,
+  index,
+  item,
+  onHoverItem,
+  onSelectItem,
+}: {
+  active: boolean;
+  index: number;
+  item: TypeaheadItem;
+  onHoverItem: (index: number) => void;
+  onSelectItem: (item: TypeaheadItem) => void;
+}) {
+  const rowRef = useRef<HTMLButtonElement | null>(null);
+  const body = getTypeaheadRowBody(item);
+
+  useEffect(() => {
+    if (!active) return;
+    rowRef.current?.scrollIntoView({ block: "nearest" });
+  }, [active]);
+
+  return (
+    <button
+      ref={rowRef}
+      id={getTypeaheadOptionId(item)}
+      className={`navbar-search-typeahead-row${active ? " is-active" : ""}${item.kind === "footer" ? " is-footer" : ""}`}
+      type="button"
+      role="option"
+      aria-selected={active}
+      onMouseEnter={() => onHoverItem(index)}
+      onMouseDown={(event) => event.preventDefault()}
+      onClick={() => onSelectItem(item)}
+    >
+      <TypeaheadRowIcon item={item} />
+      <span className="navbar-search-typeahead-copy">
+        <span className="navbar-search-typeahead-title">{body.title}</span>
+        {body.meta ? <span className="navbar-search-typeahead-meta">{body.meta}</span> : null}
+      </span>
+      {item.kind === "footer" ? <ArrowRight size={14} aria-hidden="true" /> : null}
+    </button>
+  );
+}
+
+function getTypeaheadOptionId(item: TypeaheadItem) {
+  return `navbar-search-typeahead-${item.key.replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+}
+
+function TypeaheadRowIcon({ item }: { item: TypeaheadItem }) {
+  if (item.kind === "footer") return null;
+  const Icon = TYPEAHEAD_ICONS[item.type];
+  return (
+    <span className="navbar-search-typeahead-icon" aria-hidden="true">
+      <Icon size={15} />
+    </span>
+  );
+}
+
+function getTypeaheadRowBody(item: TypeaheadItem) {
+  if (item.kind === "footer") {
+    return { title: item.label, meta: null };
+  }
+  const slug = rowString(item.item, "slug") ?? "";
+  const name = rowString(item.item, "name") ?? slug;
+  const summary = rowString(item.item, "summary");
+  const tags = rowStringArray(item.item, "tags");
+  const packageName = slug || name;
+  return {
+    title: name,
+    meta: summary ? (
+      <span className="navbar-search-typeahead-package">{summary}</span>
+    ) : tags.length > 0 ? (
+      <span className="navbar-search-typeahead-package">{tags.join(", ")}</span>
+    ) : (
+      <span className="navbar-search-typeahead-package">{packageName}</span>
+    ),
+  };
+}
+
+function NavbarThemeSwitcher({
+  mode,
+  onSetMode,
+}: {
+  mode: (typeof THEME_MODE_ITEMS)[number]["mode"];
+  onSetMode: (mode: (typeof THEME_MODE_ITEMS)[number]["mode"]) => void;
+}) {
+  return (
+    <div className="navbar-theme-switcher" role="group" aria-label="Theme mode">
+      {THEME_MODE_ITEMS.map(({ mode: themeMode, label, Icon }) => (
+        <button
+          key={themeMode}
+          type="button"
+          className={`navbar-theme-switcher-btn${mode === themeMode ? " is-active" : ""}`}
+          aria-label={label}
+          aria-pressed={mode === themeMode}
+          title={label}
+          onClick={(event) => {
+            onSetMode(themeMode);
+            event.currentTarget.blur();
+          }}
+        >
+          <Icon size={16} aria-hidden="true" />
+        </button>
+      ))}
+    </div>
+  );
+}

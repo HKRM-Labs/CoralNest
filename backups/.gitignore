@@ -1,0 +1,9 @@
+# Ignore raw >100MB uncompressed JSON, SQL, and ZIP files to ensure GitHub push compliance
+*.json
+*.sql
+*.zip
+coralnest-master-backup/2_bucket_storage/
+
+# Keep clean compressed database volume files (<12MB each)
+!*.json.zip
+!*.sql.zip

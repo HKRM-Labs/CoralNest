@@ -1,0 +1,60 @@
+# ClawHub
+
+> ClawHub is the public registry for OpenClaw skills and plugins.
+
+Use OpenClaw to search, install, and update registry content. Use the ClawHub CLI for registry authentication, publishing, and listing management. Follow the canonical documentation below for current commands and workflows.
+
+This generated file is a machine-readable map, not an access-control policy or a substitute for reviewing an artifact before installation.
+
+## Primary
+
+- [ClawHub](https://clawhub.ai): Browse the public registry for skills, plugins, and creators.
+- [ClawHub documentation](https://docs.openclaw.ai/clawhub/): Canonical user, publisher, API, trust, and operations documentation.
+- [OpenClaw docs llms.txt](https://docs.openclaw.ai/llms.txt): Machine-readable map for the full OpenClaw documentation set.
+- [OpenAPI v1](https://clawhub.ai/api/v1/openapi.json): Machine-readable schema for the current ClawHub HTTP API.
+
+## Public Registry Surfaces
+
+- [Flows & skills](https://clawhub.ai/flows): Browse agent recipes: skills, loops, and graph architectures.
+- [Plugins and packages](https://clawhub.ai/plugins): Browse and search plugin package records on CoralNest.
+- [MCP servers](https://clawhub.ai/mcp): Browse and search MCP server packages.
+- [Personas](https://clawhub.ai/persona): Browse and search Persona packages.
+- [Connectors](https://clawhub.ai/connectors): Browse managed, agent-agnostic SaaS connectors.
+- [Search](https://clawhub.ai/search): Search the public CoralNest catalog.
+
+## Documentation
+
+- [ClawHub](https://docs.openclaw.ai/clawhub/): Public ClawHub overview for discovery, install, publish, security, and the clawhub CLI.
+- [API v1](https://docs.openclaw.ai/clawhub/api): Public REST API (v1) overview and conventions.
+- [Acceptable Usage](https://docs.openclaw.ai/clawhub/acceptable-usage): Marketplace policy: what ClawHub allows and what it will not host.
+- [Auth](https://docs.openclaw.ai/clawhub/auth): ClawHub sign-in, API tokens, CLI login, token storage, and revocation.
+- [CLI](https://docs.openclaw.ai/clawhub/cli): CLI reference: commands, flags, config, and lockfile behavior.
+- [Content Rights Requests](https://docs.openclaw.ai/clawhub/content-rights): How to submit a copyright or other content rights concern about material published on ClawHub.
+- [Experimental Claw packages](https://docs.openclaw.ai/clawhub/claws): How to author, publish, and discover experimental Claw packages.
+- [HTTP API](https://docs.openclaw.ai/clawhub/http-api): HTTP API reference (public + CLI endpoints + auth).
+- [How ClawHub Works](https://docs.openclaw.ai/clawhub/how-it-works): How ClawHub listings, versions, installs, publishing, scans, and updates work.
+- [MCP server packages](https://docs.openclaw.ai/clawhub/mcp): How to author, publish, and discover MCP server packages on ClawHub.
+- [Moderation and Account Safety](https://docs.openclaw.ai/clawhub/moderation): How ClawHub reports, moderation holds, hidden listings, bans, and account standing work.
+- [Org and Namespace Claims](https://docs.openclaw.ai/clawhub/namespace-claims): How to request ClawHub review for org, brand, owner-handle, package-scope, skill-slug, or namespace ownership disputes.
+- [Persona packages](https://docs.openclaw.ai/clawhub/persona): How to author, publish, and discover persona packages on ClawHub.
+- [Plugin validation fixes](https://docs.openclaw.ai/clawhub/plugin-validation-fixes): Fix ClawHub plugin package validation findings before publishing
+- [Publishing](https://docs.openclaw.ai/clawhub/publishing): How ClawHub publishing works for skills, plugins, owners, scopes, releases, and review.
+- [Quickstart](https://docs.openclaw.ai/clawhub/quickstart): Start using ClawHub: find, install, update, and publish skills or plugins.
+- [Security](https://docs.openclaw.ai/clawhub/security): How to report ClawHub security issues and when vulnerabilities are publicly disclosed.
+- [Security Audits](https://docs.openclaw.ai/clawhub/security-audits): How to understand ClawHub security audit results before installing a skill or plugin.
+- [Skill format](https://docs.openclaw.ai/clawhub/skill-format): Skill folder format, required files, supporting artifacts, limits.
+- [Telemetry](https://docs.openclaw.ai/clawhub/telemetry): Install telemetry collected by the ClawHub CLI and how to opt out.
+- [Troubleshooting](https://docs.openclaw.ai/clawhub/troubleshooting): Troubleshooting ClawHub sign-in, install, publish, update, and API issues.
+
+## Source
+
+- [Source repository](https://github.com/openclaw/clawhub): TanStack Start app, Convex backend, CLI packages, public docs, and specifications.
+- [Public docs source](https://github.com/openclaw/clawhub/tree/main/docs): Source Markdown mirrored into the OpenClaw documentation site.
+- [Schema package](https://github.com/openclaw/clawhub/tree/main/packages/schema): Shared API routes, package schemas, and compatibility contracts.
+- [ClawHub CLI](https://github.com/openclaw/clawhub/tree/main/packages/clawhub): CLI implementation for authentication, discovery, publishing, and listing management.
+- [Convex backend](https://github.com/openclaw/clawhub/tree/main/convex): Registry data, HTTP handlers, publishing, scans, moderation, and search.
+
+## Optional
+
+- [robots.txt](https://clawhub.ai/robots.txt): Crawler policy for the ClawHub site.
+- [Web app manifest](https://clawhub.ai/manifest.json): Installable web app metadata.
